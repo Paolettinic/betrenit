@@ -1,0 +1,14 @@
+Please, translate the following question and options from English to Italian:
+{}
+Only provide the Italian translation for the above text, do not include any other text or explanation. Different options are separated by newline characters. The number of options in the output must match the input exactly. Do not skip or combine any options. Return the translation in the following JSON format, with keys "question" and "options", where the value of "options" is
+a dictionary with keys "choice_a", "choice_b", "choice_c", etc. All JSON keys must remain in English. The output must be returned exactly as shown:
+{{{{
+    "question": "[translation of question]",
+    "options": {{{{
+        "choice_a": "[translation of option1]",
+        "choice_b": "[translation of option2]",
+        "choice_c": "[translation of option3]",
+        "choice_d": "[translation of option4]",
+        ...
+    }}}}
+}}}}
