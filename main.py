@@ -1,47 +1,70 @@
 from benchmark_dataset import (
-    BenchmarkDataset,
+    BenchmarkTranslationDataset,
     BenchmarkType,
     Separator
 )
 
-import configparser
+from configparser import ConfigParser
 import argparse
+from pathlib import Path
 
-def main(args: argparse.Namespace, settings: configparser.ConfigParser):
+
+def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) -> dict:
 
     with open(settings["promptpath"][args.prompt_type], "r") as prompt_file:
         prompt_blueprint = prompt_file.read().strip()
 
-    benchmark_path = settings[args.benchmark_name]["path"]
-    benchmark_type = BenchmarkType.from_string(settings[args.benchmark_name]["type"])
-    options_keys = None
-    if benchmark_type == BenchmarkType.MULTIPLE_CHOICE:
-        options_keys = tuple(settings[args.benchmark_name]["options_keys"].split("|"))
-    filter_keys = tuple(settings[args.benchmark_name]["filter_keys"].split("|"))
-    question_key = settings[args.benchmark_name]["question_key"]
+    benchmark = settings[args.benchmark_name]
+    bench_type = BenchmarkType.from_string(benchmark["type"])
+
+    answers_keys = None
+    if bench_type == BenchmarkType.MULTIPLE_CHOICE:
+        answers_keys = tuple(benchmark["answers_keys"].split("|"))
+
+    filter_keys = tuple()
+    if "filter_keys" in benchmark:
+        filter_keys = tuple(benchmark["filter_keys"].split("|"))
+
+    benchmark_key = None
+    if "benchmark_key" in benchmark:
+        benchmark_key = benchmark["benchmark_key"]
+
+    return {
+        "path": benchmark["path"],
+        "prompt_blueprint": prompt_blueprint,
+        "benchmark_type": BenchmarkType.from_string(benchmark["type"]),
+        "filter_by": filter_keys,
+        "question_key": benchmark["question_key"],
+        "answers_keys": answers_keys,
+        "separator": Separator.LETTERS,
+        "benchmark_key": benchmark_key,
+    }
 
 
-    benchmark_dataset = BenchmarkDataset(
-        path=benchmark_path,
-        prompt_blueprint=prompt_blueprint,
-        filter_by=filter_keys,
-        benchmark_type=benchmark_type,
-        question_key=question_key,
-        separator=Separator.LETTERS,
-        options_keys=options_keys
-    )
+def main(args: argparse.Namespace, settings: ConfigParser):
 
-    print(benchmark_dataset[0])
+    dataset_params = create_dataset_parameters(args, settings)
+
+    benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
+
+    print(benchmark_dataset[0:9])
 
 
 if __name__ == "__main__":
-    argp = argparse.ArgumentParser()
-    settings = configparser.ConfigParser()
-    argp.add_argument("benchmark_name", choices=("seedbench", ))
-    argp.add_argument("--prompt-type", choices=("simple", "instruction"), default="simple")
-    argp.add_argument("--conf-path", default="configuration/settings.ini")
+    settings = ConfigParser()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("benchmark_name", type=str, choices=("seedbench", "vqav2"))
+    parser.add_argument("--model-path", type=Path, required=True)
+    parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")
+    parser.add_argument("--conf-path", type=Path, default="configuration/settings.ini")
+    parser.add_argument("--output", type=Path)
 
-    args = argp.parse_args()
+
+    args = parser.parse_args()
+
+    if not args.output:
+        args.output = f"output/{args.benchmark_name}.json" # TODO: file format
+
     settings.read(args.conf_path)
 
     main(args, settings)

@@ -1,5 +1,4 @@
-from argparse import ArgumentError
-from typing import Optional, Self, Tuple, Union
+from typing import Optional, Tuple, Union
 from torch.utils.data import Dataset
 from transformers.tokenization_utils import PreTrainedTokenizer
 from pathlib import Path
@@ -13,9 +12,9 @@ class BenchmarkType(Enum):
     @staticmethod
     def from_string(type: str) -> "BenchmarkType":
         match type:
-            case "multiple":
+            case "multiple-choice":
                 return BenchmarkType.MULTIPLE_CHOICE
-            case "open":
+            case "open-ended":
                 return BenchmarkType.OPEN_ENDED
             case _:
                 raise ValueError(f"Unknown benchmark type: {type!r}")
@@ -26,7 +25,7 @@ class Separator(Enum):
     NEW_LINE = auto()
 
 
-class BenchmarkDataset(Dataset):
+class BenchmarkTranslationDataset(Dataset):
     """
     """
     def __init__(self,
@@ -35,8 +34,10 @@ class BenchmarkDataset(Dataset):
                  benchmark_type: BenchmarkType,
                  filter_by: Tuple[str, ...],
                  question_key: str,
+                 answers_keys: Optional[Tuple[str, ...]] = None,
                  separator: Optional[Union[Separator, str]] = None,
-                 options_keys: Optional[Tuple[str, ...]] = None
+                 benchmark_key: Optional[str] = None,
+                 file_type: Optional[str] = None
                  ) -> None:
 
         def build_prompt_multiple_choice(separator: Union[Separator,str],
@@ -59,39 +60,54 @@ class BenchmarkDataset(Dataset):
 
         def read_file(path: Union[str, Path],
                       prompt_blueprint: str,
-                      filter_by: Tuple[str, ...],
                       benchmark_type: BenchmarkType,
+                      filter_by: Tuple[str, ...],
                       question_key: str,
+                      answers_keys: Optional[Tuple[str, ...]] = None,
                       separator: Optional[Union[Separator, str]] = None,
-                      options_keys: Optional[Tuple[str, ...]] = None
+                      benchmark_key: Optional[str] = None,
+                      file_type: Optional[str] = None
                       ) -> list:
-            if benchmark_type == BenchmarkType.MULTIPLE_CHOICE and not options_keys:
-                raise ValueError(
-                    "options_keys must be provided for MULTIPLE_CHOICE type."
-                )
 
+
+
+            if benchmark_type == BenchmarkType.MULTIPLE_CHOICE and not answers_keys:
+                raise ValueError(
+                    "answers_keys must be provided for MULTIPLE_CHOICE type."
+                )
             benchmark = dict()
+
+            if not file_type:
+                file_type = path.suffix[1:] if isinstance(path, Path) else path.split('.')[-1]
+
+
+
             with open(path, 'r', encoding="utf8") as jsfile:
                 benchmark = json.load(jsfile)
-            filtered = filter( lambda x: x['data_type'] in filter_by, benchmark["questions"])
+
+            if benchmark_key:
+                benchmark = benchmark[benchmark_key]
+
+            if filter_by:
+                benchmark = filter(lambda x: x['data_type'] in filter_by, benchmark["questions"])
 
 
-            if benchmark_type == BenchmarkType.MULTIPLE_CHOICE and options_keys and separator:
-                question_prompt = build_prompt_multiple_choice(separator, options_keys)
+            if benchmark_type == BenchmarkType.MULTIPLE_CHOICE and answers_keys and separator:
+                question_prompt = build_prompt_multiple_choice(separator, answers_keys)
                 prompt = prompt_blueprint.format(question_prompt)
 
                 return [
                     prompt.format(
                         *(entry[key] if entry[key][-1] != '.'
                             else entry[key][:-1]
-                            for key in (question_key, *options_keys))
+                            for key in (question_key, *answers_keys))
 
                     )
-                    for entry in filtered
+                    for entry in benchmark
                 ]
 
             prompt = prompt_blueprint
-            return [prompt.format(entry[question_key]) for entry in filtered]
+            return [prompt.format(entry[question_key]) for entry in benchmark]
 
 
         self._raw_sentences = read_file(
@@ -100,8 +116,9 @@ class BenchmarkDataset(Dataset):
             prompt_blueprint=prompt_blueprint,
             filter_by=filter_by,
             question_key=question_key,
-            options_keys=options_keys,
-            separator=separator
+            answers_keys=answers_keys,
+            separator=separator,
+            benchmark_key=benchmark_key
         )
 
         if isinstance(path, str):
