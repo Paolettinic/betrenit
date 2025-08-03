@@ -28,6 +28,8 @@ def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) 
     benchmark_key = None
     if "benchmark_key" in benchmark:
         benchmark_key = benchmark["benchmark_key"]
+    missing_ans_key = benchmark.getboolean("missing_ans_key", False)
+
 
     return {
         "path": benchmark["path"],
@@ -38,6 +40,7 @@ def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) 
         "answers_keys": answers_keys,
         "separator": Separator.LETTERS,
         "benchmark_key": benchmark_key,
+        "missing_ans_key": missing_ans_key
     }
 
 
@@ -47,13 +50,13 @@ def main(args: argparse.Namespace, settings: ConfigParser):
 
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
 
-    print(benchmark_dataset[0:9])
+    print(*benchmark_dataset[0:9], sep="\n")
 
 
 if __name__ == "__main__":
     settings = ConfigParser()
     parser = argparse.ArgumentParser()
-    parser.add_argument("benchmark_name", type=str, choices=("seedbench", "vqav2"))
+    parser.add_argument("benchmark_name", type=str, choices=("seedbench", "vqav2", "mmbench"))
     parser.add_argument("--model-path", type=Path, required=True)
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")
     parser.add_argument("--conf-path", type=Path, default="configuration/settings.ini")
