@@ -130,8 +130,6 @@ class BenchmarkTranslationDataset(Dataset):
 
             if benchmark_type == BenchmarkType.MULTIPLE_CHOICE:
                 assert answers_keys is not None and separator is not None
-                question_prompt = build_prompt_multiple_choice(separator, answers_keys)
-                prompt = prompt_blueprint.format(question_prompt)
 
                 if missing_ans_key:
                     values = []
@@ -143,8 +141,9 @@ class BenchmarkTranslationDataset(Dataset):
                             answers_keys,
                             max_no_keys
                         )
+                        prompt = prompt_blueprint.format(question_prompt)
                         values.append(
-                            question_prompt.format(
+                            prompt.format(
                                 *(entry[key] if entry[key][-1] != '.'
                                 else entry[key][:-1]
                                 for key in (question_key, *ans_keys))
@@ -153,6 +152,8 @@ class BenchmarkTranslationDataset(Dataset):
                         )
                     return values
                 else:
+                    question_prompt = build_prompt_multiple_choice(separator, answers_keys)
+                    prompt = prompt_blueprint.format(question_prompt)
                     return [
                         prompt.format(
                             *(entry[key] if entry[key][-1] != '.'
