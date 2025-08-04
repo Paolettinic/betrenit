@@ -1,12 +1,10 @@
-from benchmark_dataset import (
-    BenchmarkTranslationDataset,
-    BenchmarkType,
-    Separator
-)
-
+from dataset.benchmark_dataset import BenchmarkTranslationDataset
+from dataset import prompt_builder
 from configparser import ConfigParser
 import argparse
 from pathlib import Path
+
+
 
 
 def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) -> dict:
@@ -15,32 +13,11 @@ def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) 
         prompt_blueprint = prompt_file.read().strip()
 
     benchmark = settings[args.benchmark_name]
-    bench_type = BenchmarkType.from_string(benchmark["type"])
-
-    answers_keys = None
-    if bench_type == BenchmarkType.MULTIPLE_CHOICE:
-        answers_keys = tuple(benchmark["answers_keys"].split("|"))
-
-    filter_keys = tuple()
-    if "filter_keys" in benchmark:
-        filter_keys = tuple(benchmark["filter_keys"].split("|"))
-
-    benchmark_key = None
-    if "benchmark_key" in benchmark:
-        benchmark_key = benchmark["benchmark_key"]
-    missing_ans_key = benchmark.getboolean("missing_ans_key", False)
-
-
+    pb = prompt_builder.get_prompt_builder(args.benchmark_name)
     return {
-        "path": benchmark["path"],
+        "path": Path(benchmark["path"]),
         "prompt_blueprint": prompt_blueprint,
-        "benchmark_type": BenchmarkType.from_string(benchmark["type"]),
-        "filter_by": filter_keys,
-        "question_key": benchmark["question_key"],
-        "answers_keys": answers_keys,
-        "separator": Separator.LETTERS,
-        "benchmark_key": benchmark_key,
-        "missing_ans_key": missing_ans_key
+        "prompt_builder": pb
     }
 
 
@@ -57,7 +34,7 @@ if __name__ == "__main__":
     settings = ConfigParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("benchmark_name", type=str, choices=("seedbench", "vqav2", "mmbench"))
-    parser.add_argument("--model-path", type=Path, required=True)
+    parser.add_argument("--model-path", type=Path)
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")
     parser.add_argument("--conf-path", type=Path, default="configuration/settings.ini")
     parser.add_argument("--output", type=Path)
