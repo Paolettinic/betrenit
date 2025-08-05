@@ -1,10 +1,26 @@
 from abc import ABC, abstractmethod
-from benchmark_dataset import Separator
 from typing import Union, List, Tuple
 from pathlib import Path
-from .prompt_builder import MMBenchPromptBuilder
-from .prompt_builder import SeedbenchPromptBuilder
+from enum import Enum, auto
 
+class Separator(Enum):
+    LETTERS = auto()
+    DOTS = auto()
+    NEW_LINE = auto()
+
+    @staticmethod
+    def from_string(separator: str):
+        match separator:
+            case "letters":
+                return Separator.LETTERS
+            case "dots":
+                return Separator.DOTS
+            case "new_line":
+                return Separator.NEW_LINE
+            case "\n":
+                return Separator.NEW_LINE
+            case _:
+                return separator
 
 class PromptBuilder(ABC):
 
@@ -45,13 +61,5 @@ class PromptBuilder(ABC):
     ) -> List[str]:
         raise NotImplementedError()
 
-def get_prompt_builder(benchmark: str, **kwargs) -> PromptBuilder:
-    match benchmark:
-        case "seedbench":
-            return SeedbenchPromptBuilder(**kwargs)
-        case "mmbench":
-            return MMBenchPromptBuilder(**kwargs)
-        case _:
-            raise NotImplementedError(f"Prompt builder not implemented for {benchmark}")
 
 

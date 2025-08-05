@@ -1,46 +1,9 @@
-from typing import Optional, Tuple, Union, List
+from typing import Union
 from torch.utils.data import Dataset
 from transformers.tokenization_utils import PreTrainedTokenizer
 from pathlib import Path
-from enum import Enum, auto
 
 from .prompt_builder import PromptBuilder
-
-class BenchmarkType(Enum):
-    OPEN_ENDED = auto()
-    MULTIPLE_CHOICE = auto()
-
-    @staticmethod
-    def from_string(type: str) -> "BenchmarkType":
-        match type:
-            case "multiple-choice":
-                return BenchmarkType.MULTIPLE_CHOICE
-            case "open-ended":
-                return BenchmarkType.OPEN_ENDED
-            case _:
-                raise ValueError(f"Unknown benchmark type: {type}")
-
-class Separator(Enum):
-    LETTERS = auto()
-    DOTS = auto()
-    NEW_LINE = auto()
-
-class SupportedExtension(Enum):
-    JSON = auto()
-    CSV = auto()
-    TSV = auto()
-
-    @staticmethod
-    def from_string(type: str) -> "SupportedExtension":
-        match type:
-            case "json":
-                return SupportedExtension.JSON
-            case "csv":
-                return SupportedExtension.CSV
-            case "tsv":
-                return SupportedExtension.TSV
-            case _:
-                raise ValueError(f"Unsupported extension: {type}")
 
 
 class BenchmarkTranslationDataset(Dataset):

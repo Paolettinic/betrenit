@@ -5,19 +5,17 @@ import argparse
 from pathlib import Path
 
 
-
-
 def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) -> dict:
 
     with open(settings["promptpath"][args.prompt_type], "r") as prompt_file:
         prompt_blueprint = prompt_file.read().strip()
 
     benchmark = settings[args.benchmark_name]
-    pb = prompt_builder.get_prompt_builder(args.benchmark_name)
+    pb = prompt_builder.get_prompt_builder(args.benchmark_name, **benchmark)
     return {
         "path": Path(benchmark["path"]),
         "prompt_blueprint": prompt_blueprint,
-        "prompt_builder": pb
+        "prompt_builder": pb,
     }
 
 

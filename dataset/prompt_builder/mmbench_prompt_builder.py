@@ -1,7 +1,6 @@
-from .prompt_builder import PromptBuilder
+from .promptbuilder import PromptBuilder, Separator
 from typing import List, Tuple
 from pathlib import Path
-from benchmark_dataset import Separator
 import csv
 
 
@@ -10,7 +9,7 @@ class MMBenchPromptBuilder(PromptBuilder):
     def __init__(self, **kwargs) -> None:
         self.separator: Separator = kwargs["separator"]
         self.question_key: str = kwargs["question_key"]
-        self.answers_keys: Tuple[str] = kwargs["answers_keys"]
+        self.answers_keys: Tuple[str] = tuple(kwargs["answers_keys"].split('|'))
 
     def create_prompt_list(
         self,
@@ -19,7 +18,7 @@ class MMBenchPromptBuilder(PromptBuilder):
     ) -> List[str]:
 
         with open(path, 'r', encoding="utf8") as csvfile:
-            benchmark = list(csv.DictReader(csvfile, delimiter=",", quotechar='"'))
+            benchmark = list(csv.DictReader(csvfile, delimiter="\t", quotechar='"'))
 
         values = []
         for entry in benchmark:
