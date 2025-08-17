@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Union, List, Tuple
 from pathlib import Path
@@ -8,17 +9,17 @@ class Separator(Enum):
     DOTS = auto()
     NEW_LINE = auto()
 
-    @staticmethod
-    def from_string(separator: str):
+    @classmethod
+    def from_string(cls, separator: str) -> Separator | str:
         match separator:
             case "letters":
-                return Separator.LETTERS
+                return cls.LETTERS
             case "dots":
-                return Separator.DOTS
+                return cls.DOTS
             case "new_line":
-                return Separator.NEW_LINE
+                return cls.NEW_LINE
             case "\n":
-                return Separator.NEW_LINE
+                return cls.NEW_LINE
             case _:
                 return separator
 
@@ -27,14 +28,15 @@ class PromptBuilder(ABC):
     @staticmethod
     def build_prompt_multiple_choice(
         separator: Union[Separator,str],
-        answers_keys: Tuple[str,...],
+        answers_keys: Tuple[str,...] = (),
         max_no_keys: int = -1
     ) -> str:
 
-        if max_no_keys < 0:
-            max_no_keys = len(answers_keys)
-        else:
+        if answers_keys:
             max_no_keys = min(max_no_keys, len(answers_keys))
+
+        elif max_no_keys < 0:
+            raise ValueError("Either answers_keys or max_no_keys must be provided.")
 
         match separator:
             case Separator.LETTERS:

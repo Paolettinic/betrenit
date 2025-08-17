@@ -10,7 +10,6 @@ class SeedbenchPromptBuilder(PromptBuilder):
         self.separator: Separator|str = Separator.from_string(kwargs["separator"])
         self.question_key: str = kwargs["question_key"]
         self.answers_keys: Tuple[str] = tuple(kwargs["answers_keys"].split('|'))
-
         self.filter_by: str = kwargs["filter_by"]
 
     def create_prompt_list(

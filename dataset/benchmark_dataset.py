@@ -24,7 +24,7 @@ class BenchmarkTranslationDataset(Dataset):
         self._raw_sentences = prompt_builder.create_prompt_list(path, prompt_blueprint)
 
     @staticmethod
-    def build_collate_fn(model: str, tokenizer: PreTrainedTokenizer):
+    def build_collate_fn(tokenizer: PreTrainedTokenizer):
 
         def tower_collate_fn(batch: list, tokenizer: PreTrainedTokenizer):
             messages = [
@@ -32,19 +32,15 @@ class BenchmarkTranslationDataset(Dataset):
                     {"role": "user", "content": b}
                 ] for b in batch
             ]
-            chat_prompts = tokenizer.apply_chat_template( messages, tokenize=False, add_generation_prompt=True )
+            chat_prompts = tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True
+            )
             return chat_prompts
 
-        def madlad_collate_fn(batch: list, tokenizer: PreTrainedTokenizer):
-            return tokenizer(
-                batch,
-                padding=True,
-                return_tensors='pt'
-            )
 
-        if model == 'tower' or model == "tower_plus":
-            return lambda batch: tower_collate_fn(batch,tokenizer)
-        return lambda batch: madlad_collate_fn(batch, tokenizer)
+        return lambda batch: tower_collate_fn(batch,tokenizer)
 
     def get_raw_sentence(self, idx: int):
         if idx < 0 or idx >= len(self._raw_sentences):
