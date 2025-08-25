@@ -32,11 +32,12 @@ class PromptBuilder(ABC):
         max_no_keys: int = -1
     ) -> str:
 
-        if answers_keys:
-            max_no_keys = min(max_no_keys, len(answers_keys))
-
-        elif max_no_keys < 0:
+        if not answers_keys and max_no_keys < 0:
             raise ValueError("Either answers_keys or max_no_keys must be provided.")
+        elif max_no_keys >= 0:
+            max_no_keys = min(max_no_keys, len(answers_keys))
+        else:
+            max_no_keys = len(answers_keys)
 
         match separator:
             case Separator.LETTERS:
