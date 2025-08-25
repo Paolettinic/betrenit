@@ -1,5 +1,5 @@
-from .promptbuilder import PromptBuilder, Separator
-from .seedbench_prompt_builder import SeedbenchPromptBuilder
-from .mmbench_prompt_builder import MMBenchPromptBuilder
-from .vqav2_prompt_builder import Vqav2PromptBuilder
-from .aokvqa_prompt_builder import AokvqaPromptBuilder
+from .promptbuilder import BenchmarkHandler, Separator
+from .seedbench_prompt_builder import SeedbenchHandler
+from .mmbench_prompt_builder import MMBenchHandler
+from .vqav2_prompt_builder import Vqav2Handler
+from .aokvqa_prompt_builder import AokvqaHandler

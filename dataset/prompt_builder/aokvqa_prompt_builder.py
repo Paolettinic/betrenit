@@ -1,10 +1,10 @@
-from .promptbuilder import PromptBuilder, Separator
+from .promptbuilder import BenchmarkHandler, Separator
 from typing import List
 from pathlib import Path
 import json
 
 
-class AokvqaPromptBuilder(PromptBuilder):
+class AokvqaHandler(BenchmarkHandler):
 
     def __init__(self, **kwargs) -> None:
         self.separator: Separator|str = Separator.from_string(kwargs["separator"])
@@ -21,7 +21,7 @@ class AokvqaPromptBuilder(PromptBuilder):
         with open(path, 'r', encoding="utf8") as jsfile:
             benchmark = json.load(jsfile)
 
-        question_prompt = PromptBuilder.build_prompt_multiple_choice(self.separator, max_no_keys=4)
+        question_prompt = BenchmarkHandler.build_prompt_multiple_choice(self.separator, max_no_keys=4)
         prompt = prompt_blueprint.format(question_prompt)
         return [
             prompt.format(entry[self.question_key],*entry[self.answers_key])

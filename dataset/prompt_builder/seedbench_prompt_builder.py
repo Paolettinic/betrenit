@@ -1,10 +1,10 @@
-from .promptbuilder import PromptBuilder, Separator
+from .promptbuilder import BenchmarkHandler, Separator
 from typing import List, Tuple
 from pathlib import Path
 import json
 
 
-class SeedbenchPromptBuilder(PromptBuilder):
+class SeedbenchHandler(BenchmarkHandler):
 
     def __init__(self, **kwargs) -> None:
         self.separator: Separator|str = Separator.from_string(kwargs["separator"])

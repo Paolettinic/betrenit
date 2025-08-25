@@ -23,8 +23,7 @@ class Separator(Enum):
             case _:
                 return separator
 
-class PromptBuilder(ABC):
-
+class BenchmarkHandler(ABC):
     @staticmethod
     def build_prompt_multiple_choice(
         separator: Union[Separator,str],
@@ -58,6 +57,14 @@ class PromptBuilder(ABC):
 
     @abstractmethod
     def create_prompt_list(
+        self,
+        path: Path,
+        prompt_blueprint: str,
+    ) -> List[str]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def ceate_data_entry(
         self,
         path: Path,
         prompt_blueprint: str,
