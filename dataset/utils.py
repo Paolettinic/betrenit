@@ -1,25 +1,26 @@
-from .prompt_builder import (
-    Vqav2PromptBuilder,
-    SeedbenchPromptBuilder,
-    MMBenchPromptBuilder,
-    AokvqaPromptBuilder,
-    PromptBuilder
+from .benchmark_handler import (
+    Vqav2Handler,
+    SeedbenchHandler,
+    MMBenchHandler,
+    AokvqaHandler,
+    BenchmarkHandler
+
 )
 import argparse
 from configparser import ConfigParser
 from pathlib import Path
 
 
-def get_prompt_builder(benchmark: str, **kwargs) -> PromptBuilder:
+def get_prompt_builder(benchmark: str, **kwargs) -> BenchmarkHandler:
     match benchmark:
         case "seedbench":
-            return SeedbenchPromptBuilder(**kwargs)
+            return SeedbenchHandler(**kwargs)
         case "mmbench":
-            return MMBenchPromptBuilder(**kwargs)
+            return MMBenchHandler(**kwargs)
         case "vqav2":
-            return Vqav2PromptBuilder(**kwargs)
+            return Vqav2Handler(**kwargs)
         case "aokvqa":
-            return AokvqaPromptBuilder(**kwargs)
+            return AokvqaHandler(**kwargs)
         case _:
             raise NotImplementedError(f"Prompt builder not implemented for {benchmark}")
 
@@ -31,7 +32,7 @@ def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) 
 
     benchmark = settings[args.benchmark_name]
 
-    pb = get_prompt_builder(
+    bh = get_prompt_builder(
         args.benchmark_name,
         separator=args.separator,
         **benchmark
@@ -39,5 +40,5 @@ def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) 
     return {
         "path": Path(benchmark["path"]),
         "prompt_blueprint": prompt_blueprint,
-        "prompt_builder": pb,
+        "benchmark_handler": bh,
     }

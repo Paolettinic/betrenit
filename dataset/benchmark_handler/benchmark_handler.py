@@ -1,8 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Dict
 from pathlib import Path
 from enum import Enum, auto
+import re
 
 class Separator(Enum):
     LETTERS = auto()
@@ -31,12 +32,17 @@ class BenchmarkHandler(ABC):
         max_no_keys: int = -1
     ) -> str:
 
-        if not answers_keys and max_no_keys < 0:
-            raise ValueError("Either answers_keys or max_no_keys must be provided.")
-        elif max_no_keys >= 0:
+        if max_no_keys >= 0 and answers_keys:
             max_no_keys = min(max_no_keys, len(answers_keys))
-        else:
+        elif max_no_keys < 0 and answers_keys:
             max_no_keys = len(answers_keys)
+        elif max_no_keys > 0 and not answers_keys:
+            max_no_keys = max_no_keys
+        else:
+            raise ValueError("Either answers_keys or max_no_keys must be provided")
+
+
+        print(max_no_keys)
 
         match separator:
             case Separator.LETTERS:
@@ -55,20 +61,25 @@ class BenchmarkHandler(ABC):
                     ["{}"] * (max_no_keys + 1)
                 )
 
+    @staticmethod
+    def split_questions_answers(question_answers: str) -> Tuple[str, List[str]]:
+        # TODO: Adapt to separator
+        question, *answers = re.split(r"\s+\([A-Z]\)\s+", question_answers)
+        return question, answers
+
     @abstractmethod
     def create_prompt_list(
         self,
-        path: Path,
         prompt_blueprint: str,
     ) -> List[str]:
         raise NotImplementedError()
 
     @abstractmethod
-    def ceate_data_entry(
+    def create_data_entry(
         self,
-        path: Path,
-        prompt_blueprint: str,
-    ) -> List[str]:
+        question_answers: str,
+        index: int
+    ) -> Dict:
         raise NotImplementedError()
 
 

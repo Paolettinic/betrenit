@@ -8,9 +8,8 @@ from pathlib import Path
 from dataset.utils import create_dataset_parameters
 from tqdm import tqdm
 import argparse
+import json
 import re
-
-
 
 
 def main(args: argparse.Namespace, settings: ConfigParser):
@@ -22,9 +21,18 @@ def main(args: argparse.Namespace, settings: ConfigParser):
         raise ValueError("Model path must be provided.")
 
     model = pipeline(task="text-generation", model=settings["models"][args.model], device=0)
+    assert model.tokenizer is not None, "Tokenizer not found!"
     tokenizer : PreTrainedTokenizer = model.tokenizer
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
+    print(benchmark_dataset[:5])
+
+    for i,b in enumerate(benchmark_dataset[:5]):
+        bq = b.split("English:")[1].strip()
+        bq = b.split("Italian:")[0].strip()
+        o = benchmark_dataset.benchmark_handler.create_data_entry(bq, i)
+        print(o)
+
     dl = dataloader.DataLoader(
         benchmark_dataset[:32],
         batch_size=16,
@@ -37,22 +45,23 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     fdo = open(file_out, 'w')
     translated_questions = []
 
-    
+    index = 0
+
     for batch in tqdm(dl):
         outputs = model(batch, max_new_tokens=256, do_sample=False)
-        
-        for o in outputs:
-            o = result[0]['generated_text']
-            o = o.split("<start_of_turn>model")[1]
-            o = o.strip()
-            question, *answers = re.split(r"\s+\([A-Z]\)\s+", o))
-            entry = {"question":question} 
-            entry.update({"choice_" + chr(ord("a") + i: ans for i, ans in enumerate(answers)})
+        assert isinstance(outputs, list) and len(outputs) == len(batch)
+        for question_answers in outputs:
+            question_answers = question_answers[0]['generated_text']
+            question_answers = question_answers.split("<start_of_turn>model")[1]
+            question_answers = question_answers.strip()
+            entry = benchmark_dataset.benchmark_handler.create_data_entry(question_answers, index)
+            translated_questions.append(entry)
+            index += 1
+    # dump to json
+    json.dump(translated_questions, fdo, indent=4, ensure_ascii=False)
 
-
-            
     fdo.close()
-            
+
 
 
 if __name__ == "__main__":
@@ -67,7 +76,7 @@ if __name__ == "__main__":
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")
     parser.add_argument("--separator", type=str, choices=("letters","dots","new_line"), default="letters")
     parser.add_argument("--conf-path", type=Path, default="configuration/settings.ini")
-    parser.add_argument("--output", type=Path)
+    parser.add_argument("--output", type=Path, default=Path("output"))
 
 
     args = parser.parse_args()
