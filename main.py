@@ -25,9 +25,8 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     model = AutoModelForCausalLM.from_pretrained(
         settings["models"][args.model],
         torch_dtype=torch.float16
-    )
-    tokenizer = AutoTokenizer.from_pretrained(
-        settings["models"][args.model]).to(device).eval()
+    ).to(device).eval()
+    tokenizer = AutoTokenizer.from_pretrained(settings["models"][args.model])
 
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
