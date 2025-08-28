@@ -20,22 +20,22 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     if not args.model:
         raise ValueError("Model path must be provided.")
 
+    batch_size = 4
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = AutoModelForCausalLM.from_pretrained(
         settings["models"][args.model],
         torch_dtype=torch.float16
     )
-    tokenizer = AutoTokenizer.from_pretrained(settings["models"][args.model])
-
-    model.to(device)
-    model.eval()
+    tokenizer = AutoTokenizer.from_pretrained(
+        settings["models"][args.model]).to(device).eval()
 
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
 
+
     dl = dataloader.DataLoader(
         benchmark_dataset,
-        batch_size=4,
+        batch_size=batch_size,
         shuffle=False,
         collate_fn=BenchmarkTranslationDataset.build_collate_fn(tokenizer, device)
     )
@@ -50,12 +50,13 @@ def main(args: argparse.Namespace, settings: ConfigParser):
             resume_index = sum(1 for _ in f)
 
     print(f"Resuming from index {resume_index}/{len(benchmark_dataset)}")
+    print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) / batch_size}")
 
     with open(file_out, "a", encoding="utf-8") as fdo:
         index = resume_index
 
         for batch_idx, batch in enumerate(tqdm(dl)):
-            if batch_idx < resume_index:
+            if batch_idx * batch_size < resume_index:
                 continue  # skip already done batches
 
             with torch.inference_mode():
