@@ -23,7 +23,7 @@ def main(args: argparse.Namespace, settings: ConfigParser):
 
     #model = pipeline(task="text-generation", model=settings["models"][args.model], device=0)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = AutoModelForCausalLM.from_pretrained(settings["models"][args.model])
+    model = AutoModelForCausalLM.from_pretrained(settings["models"][args.model], torch_dtype=torch.float16)
     tokenizer = AutoTokenizer.from_pretrained(settings["models"][args.model])
 
     model.to(device)
@@ -35,7 +35,7 @@ def main(args: argparse.Namespace, settings: ConfigParser):
         benchmark_dataset,
         batch_size=4,
         shuffle=False,
-        collate_fn=BenchmarkTranslationDataset.build_collate_fn(tokenizer)
+        collate_fn=BenchmarkTranslationDataset.build_collate_fn(tokenizer, device)
     )
 
     file_out = args.output.joinpath(args.benchmark_name + "_ita.json")
