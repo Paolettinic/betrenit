@@ -47,13 +47,15 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     index = 0
 
     for batch in tqdm(dl):
-        outputs = model(batch, max_new_tokens=256, do_sample=False)
-        assert isinstance(outputs, list) and len(outputs) == len(batch)
+        outputs = model.generate(**batch, max_new_tokens=256, do_sample=False)
+        outputs = tokenizer.batch_decode(outputs, skip_special_tokens=True)
         for question_answers in outputs:
-            question_answers = question_answers[0]['generated_text']
-            question_answers = question_answers.split("<start_of_turn>model")[1]
-            question_answers = question_answers.strip()
+            question_answers = question_answers.split("model\n")[1]
             entry = benchmark_dataset.benchmark_handler.create_data_entry(question_answers, index)
+            # question_answers = question_answers[0]['generated_text']
+            # question_answers = question_answers.split("<start_of_turn>model")[1]
+            # question_answers = question_answers.strip()
+            # entry = benchmark_dataset.benchmark_handler.create_data_entry(question_answers, index)
             json.dump(entry, fdo, indent=4, ensure_ascii=False)
             if index < len(benchmark_dataset) - 1:
                 fdo.write(",\n")
