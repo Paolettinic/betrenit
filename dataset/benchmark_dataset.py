@@ -1,7 +1,9 @@
-from typing import Union
+from typing import Union, Dict
 from torch.utils.data import Dataset
 from transformers.tokenization_utils import PreTrainedTokenizer
 from pathlib import Path
+import torch
+from transformers.tokenization_utils_base import BatchEncoding
 
 from .benchmark_handler import BenchmarkHandler
 
@@ -24,27 +26,30 @@ class BenchmarkTranslationDataset(Dataset):
         self._raw_sentences = benchmark_handler.create_prompt_list(prompt_blueprint)
 
     @staticmethod
-    def build_collate_fn(tokenizer: PreTrainedTokenizer):
+    def build_collate_fn(tokenizer: PreTrainedTokenizer, device: torch.device):
 
-        def tower_collate_fn(batch: list, tokenizer: PreTrainedTokenizer):
+        def tower_collate_fn(batch: list, tokenizer: PreTrainedTokenizer, device: torch.device):
+
             messages = [
                 [
                     {"role": "user", "content": b}
                 ] for b in batch
             ]
-            # Use max_length padding
-            chat_prompts = tokenizer.apply_chat_template(
+
+            inputs = tokenizer.apply_chat_template(
                 messages,
-                tokenize=True,
                 add_generation_prompt=True,
-                padding="max_length",
-                truncation=True,
-                return_tensors="pt"
+                tokenize=True,
+                return_dict=True,
+                return_tensors="pt",
             )
-            return chat_prompts
+
+            assert isinstance(inputs, BatchEncoding)
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            return inputs
 
 
-        return lambda batch: tower_collate_fn(batch,tokenizer)
+        return lambda batch: tower_collate_fn(batch,tokenizer,device)
 
     def __len__(self):
         return len(self._raw_sentences)
