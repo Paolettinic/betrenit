@@ -31,7 +31,6 @@ class SeedbenchHandler(BenchmarkHandler):
         question, answers = self.split_questions_answers(question_answers)
         entry = self.benchmark[index].copy()
         entry.update({self.question_key: question})
-        print(self.answers_keys, answers)
         for key, ans in zip(self.answers_keys, answers):
             entry.update({key: ans})
         return entry

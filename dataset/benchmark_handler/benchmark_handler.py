@@ -42,8 +42,6 @@ class BenchmarkHandler(ABC):
             raise ValueError("Either answers_keys or max_no_keys must be provided")
 
 
-        print(max_no_keys)
-
         match separator:
             case Separator.LETTERS:
                 return "{}" + "".join(

@@ -32,10 +32,14 @@ class BenchmarkTranslationDataset(Dataset):
                     {"role": "user", "content": b}
                 ] for b in batch
             ]
+            # Use max_length padding
             chat_prompts = tokenizer.apply_chat_template(
                 messages,
-                tokenize=False,
-                add_generation_prompt=True
+                tokenize=True,
+                add_generation_prompt=True,
+                padding="max_length",
+                truncation=True,
+                return_tensors="pt"
             )
             return chat_prompts
 
