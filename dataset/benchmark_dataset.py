@@ -57,3 +57,8 @@ class BenchmarkTranslationDataset(Dataset):
 
     def __getitem__(self, idx):
         return self._raw_sentences[idx]
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
