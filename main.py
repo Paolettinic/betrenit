@@ -31,6 +31,9 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
 
+    for e in benchmark_dataset[:5]:
+        print(e)
+
 
     dl = dataloader.DataLoader(
         benchmark_dataset,
@@ -78,14 +81,13 @@ if __name__ == "__main__":
     settings = ConfigParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("benchmark_name", type=str, choices=(
-        "seedbench", "vqav2", "mmbench","aokvqa"
+        "seedbench", "vqav2", "mmbench","aokvqa","llava_coco"
     ))
     parser.add_argument("--model", type=str)
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")
     parser.add_argument("--separator", type=str, choices=("letters","dots","new_line"), default="letters")
     parser.add_argument("--conf-path", type=Path, default="configuration/settings.ini")
     parser.add_argument("--output", type=Path, default=Path("output"))
-
 
     args = parser.parse_args()
 

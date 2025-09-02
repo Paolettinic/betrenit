@@ -16,14 +16,12 @@ class AokvqaHandler(BenchmarkHandler):
         self.question_key: str = kwargs["question_key"]
         self.answers_key: str = kwargs["answers_keys"]
         self.benchmark: List[Dict] = open_file(kwargs["path"])
+        self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
 
-    def create_prompt_list(
-        self,
-        prompt_blueprint: str,
-    ) -> List[str]:
+    def create_prompt_list(self) -> List[str]:
 
         question_prompt = BenchmarkHandler.build_prompt_multiple_choice(self.separator, max_no_keys=4)
-        prompt = prompt_blueprint.format(question_prompt)
+        prompt = self.prompt_blueprint.format(question_prompt)
         print(prompt)
         return [
             prompt.format(entry[self.question_key],*entry[self.answers_key])

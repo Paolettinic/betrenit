@@ -1,0 +1,4 @@
+Translate the following English text into Italian. Return the translation strictly as a JSON object with the keys 'question', 'answer', and 'caption'. Do not include any additional explanations, commentary, or text outside of the JSON object.
+English Question: {}
+English Answer: {}
+English Caption: {}

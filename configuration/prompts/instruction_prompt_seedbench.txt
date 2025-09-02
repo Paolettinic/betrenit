@@ -1,0 +1,12 @@
+You are a professional translator specializing in English to Italian. Your task is to translate the provided English multiple-choice question and its corresponding options into Italian.
+Return the translation strictly in JSON format. The JSON should contain two main keys: "translated_question" for the Italian translation of the question, and "translated_options" for the Italian translations of the options. The "translated_options" should be an object where the keys are the original option (e.g., "choice_a", "choice_b", "choice_c", "choice_d") and the values are their respective translated texts in Italian.
+
+Do not include any additional explanations, commentary, or text outside of the requested JSON object.
+
+---
+English Question: {}
+Options:
+choice_a. {}
+choice_b. {}
+choice_c. {}
+choice_d. {}

@@ -14,7 +14,6 @@ class BenchmarkTranslationDataset(Dataset):
     def __init__(
         self,
         path: Union[str, Path],
-        prompt_blueprint: str,
         benchmark_handler: BenchmarkHandler
     ) -> None:
 
@@ -23,7 +22,7 @@ class BenchmarkTranslationDataset(Dataset):
         if not path.exists():
             raise FileNotFoundError(f"File {path} does not exist.")
         self.benchmark_handler = benchmark_handler
-        self._raw_sentences = benchmark_handler.create_prompt_list(prompt_blueprint)
+        self._raw_sentences = benchmark_handler.create_prompt_list()
 
     @staticmethod
     def build_collate_fn(tokenizer: PreTrainedTokenizer, device: torch.device):

@@ -16,15 +16,13 @@ class Vqav2Handler(BenchmarkHandler):
         self.question_key: str = kwargs["question_key"]
         self.benchmark_key: str = kwargs["benchmark_key"]
         self.benchmark: List[dict] = open_file(kwargs["path"])
+        self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
 
 
-    def create_prompt_list(
-        self,
-        prompt_blueprint: str,
-    ) -> List[str]:
+    def create_prompt_list(self) -> List[str]:
 
         return [
-            prompt_blueprint.format(entry[self.question_key])
+            self.prompt_blueprint.format(entry[self.question_key])
             for entry in self.benchmark
         ]
 

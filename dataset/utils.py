@@ -3,8 +3,8 @@ from .benchmark_handler import (
     SeedbenchHandler,
     MMBenchHandler,
     AokvqaHandler,
-    BenchmarkHandler
-
+    BenchmarkHandler,
+    LlavabenchCocoHandler,
 )
 import argparse
 from configparser import ConfigParser
@@ -21,13 +21,15 @@ def get_prompt_builder(benchmark: str, **kwargs) -> BenchmarkHandler:
             return Vqav2Handler(**kwargs)
         case "aokvqa":
             return AokvqaHandler(**kwargs)
+        case "llava_coco":
+            return LlavabenchCocoHandler(**kwargs)
         case _:
             raise NotImplementedError(f"Prompt builder not implemented for {benchmark}")
 
 
 def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) -> dict:
 
-    with open(settings["promptpath"][args.prompt_type], "r") as prompt_file:
+    with open(settings[args.benchmark_name]["prompt_path"], "r") as prompt_file:
         prompt_blueprint = prompt_file.read().strip()
 
     benchmark = settings[args.benchmark_name]
@@ -35,10 +37,10 @@ def create_dataset_parameters(args: argparse.Namespace, settings: ConfigParser) 
     bh = get_prompt_builder(
         args.benchmark_name,
         separator=args.separator,
+        prompt_blueprint=prompt_blueprint,
         **benchmark
     )
     return {
         "path": Path(benchmark["path"]),
-        "prompt_blueprint": prompt_blueprint,
         "benchmark_handler": bh,
     }

@@ -1,5 +1,5 @@
 from .benchmark_handler import BenchmarkHandler, Separator
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 from pathlib import Path
 import csv
 
@@ -18,11 +18,9 @@ class MMBenchHandler(BenchmarkHandler):
         self.answers_keys: Tuple[str] = tuple(kwargs["answers_keys"].split('|'))
         self.benchmark: List[dict] = open_file(kwargs["path"])
         self.q_only_content: str = kwargs["q_only_content"]
+        self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
 
-    def create_prompt_list(
-        self,
-        prompt_blueprint: str,
-    ) -> List[str]:
+    def create_prompt_list(self) -> List[str]:
         values = []
         for entry in self.benchmark:
             max_no_keys = sum(entry[key] != "" for key in self.answers_keys)
@@ -38,7 +36,7 @@ class MMBenchHandler(BenchmarkHandler):
                 self.answers_keys,
                 max_no_keys
             )
-            prompt = prompt_blueprint.format(question_prompt)
+            prompt = self.prompt_blueprint.format(question_prompt)
 
 
             values.append(
@@ -52,7 +50,8 @@ class MMBenchHandler(BenchmarkHandler):
 
         return values
 
-    def create_data_entry(self, question_answers: str, index: int) -> Dict:
+    def create_data_entry(self, question_answers: Any, index: int) -> Dict:
+        assert type(question_answers) is str
         question, *answers = self.split_questions_answers(question_answers)
         entry = self.benchmark[index].copy()
         entry.update({self.question_key: question})

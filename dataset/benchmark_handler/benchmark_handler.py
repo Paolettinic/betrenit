@@ -1,7 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Union, List, Tuple, Dict
-from pathlib import Path
+from typing import Union, List, Tuple, Dict, Any
 from enum import Enum, auto
 import re
 
@@ -66,16 +65,13 @@ class BenchmarkHandler(ABC):
         return question, answers
 
     @abstractmethod
-    def create_prompt_list(
-        self,
-        prompt_blueprint: str,
-    ) -> List[str]:
+    def create_prompt_list(self) -> List[str]:
         raise NotImplementedError()
 
     @abstractmethod
     def create_data_entry(
         self,
-        question_answers: str,
+        question_answers: Any,
         index: int
     ) -> Dict:
         raise NotImplementedError()
