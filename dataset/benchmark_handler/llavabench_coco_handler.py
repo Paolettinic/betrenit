@@ -18,6 +18,7 @@ class LlavabenchCocoHandler(BenchmarkHandler):
         self.benchmark = open_file(kwargs["path"])
         self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
 
+
     def create_prompt_list(self) -> List[str]:
         return [
             self.prompt_blueprint.format(
@@ -29,7 +30,13 @@ class LlavabenchCocoHandler(BenchmarkHandler):
         ]
 
     def create_data_entry(self, question_answers: Any, index: int) -> dict:
-        assert type(question_answers) is dict
+        sanitized = self.extract_json(question_answers)
+
+        assert self.question_key in sanitized and \
+            self.caption_key in sanitized and \
+            self.answer_key in sanitized,\
+            "Generated JSON does not match the benchmark"
+
         entry = self.benchmark[index].copy()
-        entry.update(question_answers)
+        entry.update(sanitized)
         return entry

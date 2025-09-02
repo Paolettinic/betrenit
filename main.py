@@ -12,6 +12,7 @@ import torch
 import torch._dynamo
 torch._dynamo.config.suppress_errors = True
 torch._dynamo.reset()
+torch.set_float32_matmul_precision('high')
 
 def main(args: argparse.Namespace, settings: ConfigParser):
     if not args.output.exists():
@@ -22,6 +23,7 @@ def main(args: argparse.Namespace, settings: ConfigParser):
 
     batch_size = 4
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     model = AutoModelForCausalLM.from_pretrained(
         settings["models"][args.model],
         torch_dtype=torch.float16
@@ -30,11 +32,6 @@ def main(args: argparse.Namespace, settings: ConfigParser):
 
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
-
-    for e in benchmark_dataset[:5]:
-        print(e)
-
-
     dl = dataloader.DataLoader(
         benchmark_dataset,
         batch_size=batch_size,
@@ -42,17 +39,15 @@ def main(args: argparse.Namespace, settings: ConfigParser):
         collate_fn=BenchmarkTranslationDataset.build_collate_fn(tokenizer, device)
     )
 
-    # ---- write to JSONL instead of JSON ----
     file_out = args.output.joinpath(args.benchmark_name + "_ita.jsonl")
 
-    # resume: count existing lines
     resume_index = 0
     if file_out.exists():
         with open(file_out, "r") as f:
             resume_index = sum(1 for _ in f)
+        print(f"Resuming from index {resume_index}/{len(benchmark_dataset)}")
+        print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) / batch_size}")
 
-    print(f"Resuming from index {resume_index}/{len(benchmark_dataset)}")
-    print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) / batch_size}")
 
     with open(file_out, "a", encoding="utf-8") as fdo:
         index = resume_index

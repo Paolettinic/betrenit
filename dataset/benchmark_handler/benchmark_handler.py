@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Union, List, Tuple, Dict, Any
 from enum import Enum, auto
+import json
 import re
 
 class Separator(Enum):
@@ -63,6 +64,22 @@ class BenchmarkHandler(ABC):
         # TODO: Adapt to separator
         question, *answers = re.split(r"\s+\([A-Z]\)\s+", question_answers)
         return question, answers
+
+    @staticmethod
+    def extract_json(text: str) -> Dict:
+        # Try to extract fenced code block first
+        fenced = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL | re.IGNORECASE)
+        if fenced:
+            candidate = fenced.group(1).strip()
+        else:
+            # Fall back: try to find the first JSON object or array
+            candidate = re.search(r"(\{.*\}|\[.*\])", text, re.DOTALL)
+            if not candidate:
+                raise ValueError("No JSON found in input")
+            candidate = candidate.group(1).strip()
+
+        # Parse JSON
+        return json.loads(candidate)
 
     @abstractmethod
     def create_prompt_list(self) -> List[str]:
