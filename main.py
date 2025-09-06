@@ -32,6 +32,10 @@ def main(args: argparse.Namespace, settings: ConfigParser):
 
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
+
+    print(benchmark_dataset[:3])
+    print(benchmark_dataset[90:93])
+    print(benchmark_dataset[180:183])
     dl = dataloader.DataLoader(
         benchmark_dataset,
         batch_size=batch_size,
@@ -48,6 +52,10 @@ def main(args: argparse.Namespace, settings: ConfigParser):
         print(f"Resuming from index {resume_index}/{len(benchmark_dataset)}")
         print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) / batch_size}")
 
+
+    separated = settings.getboolean(args.benchmark_name, "separated")
+
+    cur_entry = dict()
 
     with open(file_out, "a", encoding="utf-8") as fdo:
         index = resume_index
@@ -66,6 +74,10 @@ def main(args: argparse.Namespace, settings: ConfigParser):
                 entry = benchmark_dataset.benchmark_handler.create_data_entry(
                     question_answers, index
                 )
+                if separated and not entry:
+                    index += 1
+                    continue
+
                 fdo.write(json.dumps(entry, ensure_ascii=False) + "\n")
                 fdo.flush()
                 index += 1
