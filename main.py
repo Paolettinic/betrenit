@@ -14,6 +14,15 @@ torch._dynamo.config.suppress_errors = True
 torch._dynamo.reset()
 torch.set_float32_matmul_precision('high')
 
+def main2(args: argparse.Namespace, settings: ConfigParser):
+    dataset_params = create_dataset_parameters(args, settings)
+    benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
+
+    for i, b in enumerate(benchmark_dataset[:8]):
+        print(b)
+        # p = benchmark_dataset.benchmark_handler.create_data_entry(b, i)
+        # print(p)
+
 def main(args: argparse.Namespace, settings: ConfigParser):
     if not args.output.exists():
         raise ValueError("Path does not exist!")
@@ -33,9 +42,6 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
 
-    print(benchmark_dataset[:3])
-    print(benchmark_dataset[90:93])
-    print(benchmark_dataset[180:183])
     dl = dataloader.DataLoader(
         benchmark_dataset,
         batch_size=batch_size,
@@ -54,8 +60,6 @@ def main(args: argparse.Namespace, settings: ConfigParser):
 
 
     separated = settings.getboolean(args.benchmark_name, "separated")
-
-    cur_entry = dict()
 
     with open(file_out, "a", encoding="utf-8") as fdo:
         index = resume_index
@@ -103,9 +107,5 @@ if __name__ == "__main__":
 
     settings.read(args.conf_path)
 
-    main(args, settings)
-
-
-
-
+    main2(args, settings)
 
