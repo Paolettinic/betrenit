@@ -65,7 +65,10 @@ class AokvqaHandler(BenchmarkHandler):
                 _ = entry.pop(self.answers_key)
                 self._current_entry = entry
                 return {}
-            rationales = question_answers.split('.')
+            rationales = list(map(
+                lambda x : x.strip() + ".",
+                question_answers.split('.')[:-1]
+            ))
             self._current_entry.update({self.rationales_key: rationales})
             return self._current_entry
 
