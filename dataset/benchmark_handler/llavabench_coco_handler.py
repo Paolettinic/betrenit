@@ -18,7 +18,7 @@ class LlavabenchCocoHandler(BenchmarkHandler):
         self.separated_keys = (self.question_key, self.answer_key, self.caption_key)
         self.benchmark = open_file(kwargs["path"])
         self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
-        self.current_entry = dict()
+        self._current_entry = dict()
 
 
     def create_prompt_list(self) -> List[str]:
@@ -56,15 +56,13 @@ class LlavabenchCocoHandler(BenchmarkHandler):
             actual_index = index // 3
             entry = self.benchmark[actual_index].copy()
             entry.update({self.question_key : question_answers})
-            self.current_entry.update(entry)
+            self._current_entry.update(entry)
             return {}
         elif index % len(self.separated_keys) == 1:
-            self.current_entry.update({self.answer_key: question_answers})
+            self._current_entry.update({self.answer_key: question_answers})
             return {}
         else:
-            self.current_entry.update({self.caption_key : question_answers})
-            ret = self.current_entry
-            self.current_entry = dict()
-            return ret
+            self._current_entry.update({self.caption_key : question_answers})
+            return self._current_entry
 
 

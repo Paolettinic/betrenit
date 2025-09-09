@@ -18,7 +18,7 @@ class AokvqaHandler(BenchmarkHandler):
         self.benchmark: List[Dict] = open_file(kwargs["path"])
         self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
         self.rationales_key: str = kwargs["rationales"].strip()
-
+        self.dir_answers_key: str = kwargs["dir_answers_key"].strip()
         self._current_entry = dict()
 
     def create_prompt_list(self) -> List[str]:
@@ -51,11 +51,15 @@ class AokvqaHandler(BenchmarkHandler):
                         for r in rationales
                     ]))
                 )
+            if self.dir_answers_key:
+                to_translate.append(
+                    self.prompt_blueprint.format(". ".join(entry[self.dir_answers_key]))
+                )
         return to_translate
 
     def create_data_entry(self, question_answers: str, index: int) -> Dict:
-        if self.rationales_key:
-            if index % 2 == 0:
+        if self.rationales_key and self.dir_answers_key:
+            if index % 3 == 0:
                 question, answers = self.split_questions_answers(question_answers)
                 entry = self.benchmark[index].copy()
                 entry.update(question=question)
@@ -65,12 +69,21 @@ class AokvqaHandler(BenchmarkHandler):
                 _ = entry.pop(self.answers_key)
                 self._current_entry = entry
                 return {}
-            rationales = list(map(
-                lambda x : x.strip() + ".",
-                question_answers.split('.')[:-1]
-            ))
-            self._current_entry.update({self.rationales_key: rationales})
-            return self._current_entry
+            elif index % 3 == 1:
+                rationales = list(map(
+                    lambda x : x.strip() + ".",
+                    question_answers.split('.')[:-1]
+                ))
+                self._current_entry.update({self.rationales_key: rationales})
+                return {}
+            else:
+                direct_answers = list(map(
+                    lambda x : x.strip(),
+                    question_answers.split('.')
+                ))
+                self._current_entry.update({self.dir_answers_key: direct_answers})
+                return self._current_entry
+
 
         else:
             question, answers = self.split_questions_answers(question_answers)
