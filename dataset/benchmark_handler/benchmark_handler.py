@@ -82,7 +82,7 @@ class BenchmarkHandler(ABC):
         return json.loads(candidate)
 
     @abstractmethod
-    def create_prompt_list(self) -> List[str]:
+    def create_prompt_list(self, resume_from_index: int) -> List[str]:
         raise NotImplementedError()
 
     @abstractmethod

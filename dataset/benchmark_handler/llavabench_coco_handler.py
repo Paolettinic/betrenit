@@ -21,7 +21,7 @@ class LlavabenchCocoHandler(BenchmarkHandler):
         self._current_entry = dict()
 
 
-    def create_prompt_list(self) -> List[str]:
+    def create_prompt_list(self, resume_from_index: int = 0) -> List[str]:
         # return [
         #     self.prompt_blueprint.format(
         #         entry[self.question_key].replace('\n', ' ').strip(),
@@ -34,7 +34,7 @@ class LlavabenchCocoHandler(BenchmarkHandler):
             self.prompt_blueprint.format(
                 entry[key].replace('\n', ' ').strip(),
             )
-            for entry in self.benchmark
+            for entry in self.benchmark[resume_from_index:]
             for key in self.separated_keys
         ]
         # + [

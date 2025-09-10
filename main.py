@@ -39,8 +39,14 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     ).to(device).eval()
     tokenizer = AutoTokenizer.from_pretrained(settings["models"][args.model])
 
+    file_out = args.output.joinpath(args.benchmark_name + "_ita.jsonl")
+    resume_index = 0
+    if file_out.exists():
+        with open(file_out, "r") as f:
+            resume_index = sum(1 for _ in f)
+
     dataset_params = create_dataset_parameters(args, settings)
-    benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
+    benchmark_dataset = BenchmarkTranslationDataset(**dataset_params, resume_from_entry=resume_index)
 
     dl = dataloader.DataLoader(
         benchmark_dataset,
@@ -49,14 +55,9 @@ def main(args: argparse.Namespace, settings: ConfigParser):
         collate_fn=BenchmarkTranslationDataset.build_collate_fn(tokenizer, device)
     )
 
-    file_out = args.output.joinpath(args.benchmark_name + "_ita.jsonl")
 
-    resume_index = 0
-    if file_out.exists():
-        with open(file_out, "r") as f:
-            resume_index = sum(1 for _ in f)
-        print(f"Resuming from index {resume_index}/{len(benchmark_dataset)}")
-        print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) / batch_size}")
+    print(f"Resuming from index {resume_index}/{len(benchmark_dataset) + resume_index}")
+    print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) + resume_index / batch_size}")
 
 
     separated = settings.getboolean(args.benchmark_name, "separated")
