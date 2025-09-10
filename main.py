@@ -65,9 +65,9 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     with open(file_out, "a", encoding="utf-8") as fdo:
         index = resume_index
 
-        for batch_idx, batch in enumerate(tqdm(dl)):
-            if batch_idx * batch_size < resume_index:
-                continue  # skip already done batches
+        for batch in tqdm(dl):
+            # if batch_idx * batch_size < resume_index:
+            #     continue  # skip already done batches
 
             with torch.inference_mode():
                 outputs = model.generate(**batch, max_new_tokens=256, do_sample=False)
