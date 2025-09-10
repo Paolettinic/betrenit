@@ -60,8 +60,9 @@ class AokvqaHandler(BenchmarkHandler):
     def create_data_entry(self, question_answers: str, index: int) -> Dict:
         if self.rationales_key and self.dir_answers_key:
             if index % 3 == 0:
+                actual_index = index // 3
                 question, answers = self.split_questions_answers(question_answers)
-                entry = self.benchmark[index].copy()
+                entry = self.benchmark[actual_index].copy()
                 entry.update(question=question)
                 keys_answers = zip((f"choice_{i+1}" for i in range(len(answers))), answers)
                 for answer_key, answer in keys_answers:
