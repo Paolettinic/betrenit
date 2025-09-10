@@ -21,7 +21,7 @@ class AokvqaHandler(BenchmarkHandler):
         self.dir_answers_key: str = kwargs["dir_answers_key"].strip()
         self._current_entry = dict()
 
-    def create_prompt_list(self) -> List[str]:
+    def create_prompt_list(self, resume_from_index: int) -> List[str]:
         question_prompt = BenchmarkHandler.build_prompt_multiple_choice(
             self.separator,
             max_no_keys=4
@@ -35,7 +35,7 @@ class AokvqaHandler(BenchmarkHandler):
 
         to_translate = []
 
-        for entry in self.benchmark:
+        for entry in self.benchmark[resume_from_index:]:
             to_translate.append(
                 prompt.format(entry[self.question_key], *entry[self.answers_key])
             )
