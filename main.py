@@ -46,7 +46,10 @@ def main(args: argparse.Namespace, settings: ConfigParser):
             resume_index = sum(1 for _ in f)
 
     dataset_params = create_dataset_parameters(args, settings)
-    benchmark_dataset = BenchmarkTranslationDataset(**dataset_params, resume_from_entry=resume_index)
+    benchmark_dataset = BenchmarkTranslationDataset(
+        **dataset_params,
+        resume_from_entry=resume_index
+    )
 
     dl = dataloader.DataLoader(
         benchmark_dataset,
@@ -63,7 +66,7 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     separated = settings.getboolean(args.benchmark_name, "separated")
 
     with open(file_out, "a", encoding="utf-8") as fdo:
-        index = resume_index
+        index = 0
 
         for batch in tqdm(dl):
             # if batch_idx * batch_size < resume_index:

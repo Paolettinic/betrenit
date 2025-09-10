@@ -64,7 +64,7 @@ class AokvqaHandler(BenchmarkHandler):
                 question, answers = self.split_questions_answers(question_answers)
                 entry = self.benchmark[actual_index].copy()
                 entry.update(question=question)
-                keys_answers = zip((f"choice_{i+1}" for i in range(len(answers))), answers)
+                keys_answers = zip((f"choice_{i}" for i in range(len(answers))), answers)
                 for answer_key, answer in keys_answers:
                     entry.update({answer_key: answer})
                 _ = entry.pop(self.answers_key)
