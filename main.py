@@ -63,7 +63,7 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) + resume_index / batch_size}")
 
 
-    separated = settings.getboolean(args.benchmark_name, "separated")
+    separated = settings.getboolean(args.benchmark_name, "separated", fallback=False)
 
     with open(file_out, "a", encoding="utf-8") as fdo:
         index = 0
@@ -111,5 +111,5 @@ if __name__ == "__main__":
 
     settings.read(args.conf_path)
 
-    main2(args, settings)
+    main(args, settings)
 
