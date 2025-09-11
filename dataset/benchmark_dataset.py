@@ -15,7 +15,7 @@ class BenchmarkTranslationDataset(Dataset):
         self,
         path: Union[str, Path],
         benchmark_handler: BenchmarkHandler,
-        resume_from_entry: int
+        resume_from_entry: int = 0
     ) -> None:
 
         if isinstance(path, str):

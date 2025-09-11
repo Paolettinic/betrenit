@@ -96,7 +96,7 @@ if __name__ == "__main__":
     settings = ConfigParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("benchmark_name", type=str, choices=(
-        "seedbench", "vqav2", "mmbench","aokvqa","llava_coco"
+        "seedbench", "vqav2", "mmbench","aokvqa_val","aokvqa_test","llava_coco"
     ))
     parser.add_argument("--model", type=str)
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")

@@ -17,8 +17,9 @@ class AokvqaHandler(BenchmarkHandler):
         self.answers_key: str = kwargs["answers_keys"]
         self.benchmark: List[Dict] = open_file(kwargs["path"])
         self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
-        self.rationales_key: str = kwargs["rationales"].strip()
-        self.dir_answers_key: str = kwargs["dir_answers_key"].strip()
+
+        self.rationales_key: str =(kwargs.get("rationales") or "").strip()
+        self.dir_answers_key: str =(kwargs.get("dir_answers_key") or "").strip()
         self._current_entry = dict()
 
     def create_prompt_list(self, resume_from_index: int) -> List[str]:

@@ -19,7 +19,7 @@ def get_prompt_builder(benchmark: str, **kwargs) -> BenchmarkHandler:
             return MMBenchHandler(**kwargs)
         case "vqav2":
             return Vqav2Handler(**kwargs)
-        case "aokvqa":
+        case "aokvqa_val" | "aokvqa_test":
             return AokvqaHandler(**kwargs)
         case "llava_coco":
             return LlavabenchCocoHandler(**kwargs)
