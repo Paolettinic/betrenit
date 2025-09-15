@@ -19,11 +19,11 @@ class Vqav2Handler(BenchmarkHandler):
         self.prompt_blueprint: str = kwargs["prompt_blueprint"].strip()
 
 
-    def create_prompt_list(self) -> List[str]:
+    def create_prompt_list(self, resume_from_index: int) -> List[str]:
 
         return [
             self.prompt_blueprint.format(entry[self.question_key])
-            for entry in self.benchmark
+            for entry in self.benchmark[resume_from_index:]
         ]
 
     def create_data_entry(self, question_answers: str, index: int) -> Dict:
