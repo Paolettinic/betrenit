@@ -37,7 +37,7 @@ class SeedbenchHandler(BenchmarkHandler):
             entry.update({key: ans})
         return entry
 
-    def create_prompt_list(self) -> List[str]:
+    def create_prompt_list(self, resume_from_index: int) -> List[str]:
         question_prompt = self.build_prompt_multiple_choice(self.separator, self.answers_keys)
         prompt = self.prompt_blueprint.format(question_prompt)
         return [
@@ -46,7 +46,7 @@ class SeedbenchHandler(BenchmarkHandler):
                 else entry[key][:-1]
                 for key in (self.question_key, *self.answers_keys))
             )
-            for entry in self.benchmark
+            for entry in self.benchmark[resume_from_index:]
         ]
 
 

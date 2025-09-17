@@ -44,6 +44,7 @@ def main(args: argparse.Namespace, settings: ConfigParser):
     if file_out.exists():
         with open(file_out, "r") as f:
             resume_index = sum(1 for _ in f)
+        print(f"Resuming from index {resume_index}")
 
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(
@@ -57,11 +58,6 @@ def main(args: argparse.Namespace, settings: ConfigParser):
         shuffle=False,
         collate_fn=BenchmarkTranslationDataset.build_collate_fn(tokenizer, device)
     )
-
-
-    print(f"Resuming from index {resume_index}/{len(benchmark_dataset) + resume_index}")
-    print(f"Batch: {resume_index / batch_size}/{len(benchmark_dataset) + resume_index / batch_size}")
-
 
     separated = settings.getboolean(args.benchmark_name, "separated", fallback=False)
 
@@ -96,7 +92,8 @@ if __name__ == "__main__":
     settings = ConfigParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("benchmark_name", type=str, choices=(
-        "seedbench", "vqav2", "mmbench","aokvqa_val","aokvqa_test","llava_coco"
+        "seedbench", "vqav2_test", "vqav2_val", "mmbench",
+        "aokvqa_val","aokvqa_test","llava_coco",
     ))
     parser.add_argument("--model", type=str)
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")
@@ -111,5 +108,5 @@ if __name__ == "__main__":
 
     settings.read(args.conf_path)
 
-    main(args, settings)
+    main2(args, settings)
 
