@@ -20,8 +20,10 @@ def main2(args: argparse.Namespace, settings: ConfigParser):
 
     for i, b in enumerate(benchmark_dataset[:8]):
         print(b)
-        # p = benchmark_dataset.benchmark_handler.create_data_entry(b, i)
-        # print(p)
+
+    for i, b in enumerate(benchmark_dataset[:8]):
+        p = benchmark_dataset.benchmark_handler.create_data_entry(b, i)
+        print(p)
 
 def main(args: argparse.Namespace, settings: ConfigParser):
     if not args.output.exists():

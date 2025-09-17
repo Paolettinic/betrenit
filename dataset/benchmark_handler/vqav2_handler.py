@@ -15,7 +15,6 @@ class Vqav2Handler(BenchmarkHandler):
             with open(benchmark_path, 'r', encoding="utf8") as jsfile:
                 benchmark_file = json.load(jsfile)
                 benchmark = benchmark_file[self.benchmark_key]
-            print(annotation_path)
 
 
             if annotation_path:
@@ -42,7 +41,7 @@ class Vqav2Handler(BenchmarkHandler):
 
     def create_prompt_list(self, resume_from_index: int) -> List[str]:
 
-        if self.annotation_key is not None:
+        if self.annotation_key:
             question_prompt = self.build_prompt_multiple_choice(
                 separator=self.separator,
                 max_no_keys=len(self.benchmark[0][self.answers_key])
@@ -62,7 +61,20 @@ class Vqav2Handler(BenchmarkHandler):
 
     def create_data_entry(self, question_answers: str, index: int) -> Dict:
         entry = self.benchmark[index].copy()
-        entry.update({self.question_key: question_answers})
+        if self.annotation_key:
+            question, answers = self.split_questions_answers(question_answers)
+            entry.update(
+                {
+                    self.question_key: question,
+                    self.answers_key: [
+                        {**ans_entry, self.sep_ans_key: answer}
+                        for ans_entry, answer in zip(entry[self.answers_key], answers)
+                    ]
+                }
+            )
+        else:
+            entry.update({self.question_key: question_answers})
+
         return entry
 
 
