@@ -18,10 +18,10 @@ def main2(args: argparse.Namespace, settings: ConfigParser):
     dataset_params = create_dataset_parameters(args, settings)
     benchmark_dataset = BenchmarkTranslationDataset(**dataset_params)
 
-    for i, b in enumerate(benchmark_dataset[:8]):
+    for i, b in enumerate(benchmark_dataset[:4]):
         print(b)
 
-    for i, b in enumerate(benchmark_dataset[:8]):
+    for i, b in enumerate(benchmark_dataset[:4]):
         p = benchmark_dataset.benchmark_handler.create_data_entry(b, i)
         print(p)
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("benchmark_name", type=str, choices=(
         "seedbench", "vqav2_test", "vqav2_val", "mmbench",
-        "aokvqa_val","aokvqa_test","llava_coco",
+        "aokvqa_val","aokvqa_test","llava_coco", "hallusionbench",
     ))
     parser.add_argument("--model", type=str)
     parser.add_argument("--prompt-type", type=str, choices=("simple", "instruction"), default="simple")

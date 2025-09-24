@@ -22,6 +22,7 @@ class Vqav2Handler(BenchmarkHandler):
                     annotations = json.load(jsfile)[self.annotation_key]
                 assert len(benchmark) == len(annotations)
                 for bk, ak in zip(benchmark, annotations):
+                    assert bk['question_id'] == ak['question_id']
                     bk.update(ak)
 
             return benchmark

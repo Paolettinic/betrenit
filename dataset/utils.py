@@ -1,11 +1,4 @@
-from .benchmark_handler import (
-    Vqav2Handler,
-    SeedbenchHandler,
-    MMBenchHandler,
-    AokvqaHandler,
-    BenchmarkHandler,
-    LlavabenchCocoHandler,
-)
+from .benchmark_handler import *
 import argparse
 from configparser import ConfigParser
 from pathlib import Path
@@ -23,6 +16,8 @@ def get_prompt_builder(benchmark: str, **kwargs) -> BenchmarkHandler:
             return AokvqaHandler(**kwargs)
         case "llava_coco":
             return LlavabenchCocoHandler(**kwargs)
+        case "hallusionbench":
+            return HallusionbenchHandler(**kwargs)
         case _:
             raise NotImplementedError(f"Prompt builder not implemented for {benchmark}")
 
