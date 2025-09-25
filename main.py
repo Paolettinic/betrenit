@@ -94,7 +94,7 @@ if __name__ == "__main__":
     settings = ConfigParser()
     parser = argparse.ArgumentParser()
     parser.add_argument("benchmark_name", type=str, choices=(
-        "seedbench", "vqav2_test", "vqav2_val", "mmbench",
+        "seedbench", "vqav2_test", "vqav2_val", "mmbench_test", "mmbench_dev",
         "aokvqa_val","aokvqa_test","llava_coco", "hallusionbench",
     ))
     parser.add_argument("--model", type=str)
@@ -102,6 +102,7 @@ if __name__ == "__main__":
     parser.add_argument("--separator", type=str, choices=("letters","dots","new_line"), default="letters")
     parser.add_argument("--conf-path", type=Path, default="configuration/settings.ini")
     parser.add_argument("--output", type=Path, default=Path("output"))
+    parser.add_argument("--test", action="store_true")
 
     args = parser.parse_args()
 
@@ -110,5 +111,8 @@ if __name__ == "__main__":
 
     settings.read(args.conf_path)
 
-    main2(args, settings)
+    if args.test:
+        main2(args, settings)
+    else:
+        main(args, settings)
 

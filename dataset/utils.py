@@ -8,7 +8,7 @@ def get_prompt_builder(benchmark: str, **kwargs) -> BenchmarkHandler:
     match benchmark:
         case "seedbench":
             return SeedbenchHandler(**kwargs)
-        case "mmbench":
+        case "mmbench_dev" | "mmbench_test":
             return MMBenchHandler(**kwargs)
         case "vqav2_val" | "vqav2_test":
             return Vqav2Handler(**kwargs)
