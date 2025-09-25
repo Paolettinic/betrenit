@@ -23,8 +23,10 @@ class MMBenchHandler(BenchmarkHandler):
         self._current_entry = dict()
 
         self.indicies = dict()
+        self.resume_index: int
 
     def create_prompt_list(self, resume_from_index: int) -> List[str]:
+        self.resume_index = resume_from_index
         values = []
         n = 0
         for idx, entry in enumerate(self.benchmark[resume_from_index:]):
@@ -67,7 +69,7 @@ class MMBenchHandler(BenchmarkHandler):
         idx, is_question, has_hint = self.indicies[index]
         if is_question:
             question, answers = self.split_questions_answers(question_answers)
-            self._current_entry = self.benchmark[idx].copy()
+            self._current_entry = self.benchmark[idx + self.resume_index].copy()
             self._current_entry.update({self.question_key: question})
             for answer_key, answer in zip(self.answers_keys, answers):
                 self._current_entry.update({answer_key: answer})
