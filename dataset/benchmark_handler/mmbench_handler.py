@@ -66,7 +66,7 @@ class MMBenchHandler(BenchmarkHandler):
 
         idx, is_question, has_hint = self.indicies[index]
         if is_question:
-            question, *answers = self.split_questions_answers(question_answers)
+            question, answers = self.split_questions_answers(question_answers)
             self._current_entry = self.benchmark[idx].copy()
             self._current_entry.update({self.question_key: question})
             for answer_key, answer in zip(self.answers_keys, answers):
