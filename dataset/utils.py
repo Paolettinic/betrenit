@@ -18,6 +18,8 @@ def get_prompt_builder(benchmark: str, **kwargs) -> BenchmarkHandler:
             return LlavabenchCocoHandler(**kwargs)
         case "hallusionbench":
             return HallusionbenchHandler(**kwargs)
+        case "mme":
+            return MmeHandler(**kwargs)
         case _:
             raise NotImplementedError(f"Prompt builder not implemented for {benchmark}")
 
